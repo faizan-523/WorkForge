@@ -25,17 +25,19 @@ interface SearchParams {
 
 const PAGE_SIZE = 9;
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<SearchParams>;
+  searchParams?: Promise<SearchParams> | SearchParams;
 }) {
-  const resolvedParams = await searchParams;
+  const resolvedParams = (await searchParams) || {};
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
   const role = (session?.user as any)?.role;
 
-  const page = Math.max(1, parseInt(resolvedParams.page || '1', 10));
+  const page = Math.max(1, parseInt(resolvedParams.page || '1', 10)) || 1;
 
   // Build Prisma filter clause
   const where: any = { status: 'OPEN' };
@@ -56,38 +58,50 @@ export default async function ProjectsPage({
     where.experienceLevel = resolvedParams.level;
   }
 
-  if (resolvedParams.minBudget || resolvedParams.maxBudget) {
+  const minB = resolvedParams.minBudget ? parseFloat(resolvedParams.minBudget) : NaN;
+  const maxB = resolvedParams.maxBudget ? parseFloat(resolvedParams.maxBudget) : NaN;
+  if (!isNaN(minB) || !isNaN(maxB)) {
     where.budget = {};
-    if (resolvedParams.minBudget) {
-      where.budget.gte = parseFloat(resolvedParams.minBudget);
-    }
-    if (resolvedParams.maxBudget) {
-      where.budget.lte = parseFloat(resolvedParams.maxBudget);
-    }
+    if (!isNaN(minB)) where.budget.gte = minB;
+    if (!isNaN(maxB)) where.budget.lte = maxB;
   }
 
   // Fetch total count & paginated projects concurrently
-  const [totalProjects, projects] = await Promise.all([
-    db.project.count({ where }),
-    db.project.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      include: {
-        client: { select: { name: true, profile: { select: { companyName: true } } } },
-        _count: { select: { proposals: true } },
-      },
-    }),
-  ]);
+  let totalProjects = 0;
+  let projects: any[] = [];
+
+  try {
+    const [countResult, projectsResult] = await Promise.all([
+      db.project.count({ where }),
+      db.project.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+        include: {
+          client: { select: { name: true, profile: { select: { companyName: true } } } },
+          _count: { select: { proposals: true } },
+        },
+      }),
+    ]);
+    totalProjects = countResult;
+    projects = projectsResult;
+  } catch (error) {
+    console.error('Failed to load projects:', error);
+  }
 
   const totalPages = Math.max(1, Math.ceil(totalProjects / PAGE_SIZE));
 
   // User's bookmarked project IDs
-  const savedProjects = userId
-    ? await db.savedProject.findMany({ where: { userId }, select: { projectId: true } })
-    : [];
-  const savedIds = new Set(savedProjects.map((s) => s.projectId));
+  let savedIds = new Set<string>();
+  if (userId) {
+    try {
+      const savedProjects = await db.savedProject.findMany({ where: { userId }, select: { projectId: true } });
+      savedIds = new Set(savedProjects.map((s) => s.projectId));
+    } catch {
+      // ignore
+    }
+  }
 
   const categories = ['Development', 'Design', 'Writing', 'Marketing', 'Data Science', 'DevOps', 'Mobile'];
 
@@ -263,7 +277,7 @@ export default async function ProjectsPage({
                         {project.title}
                       </h2>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        {project.client.profile?.companyName || project.client.name}
+                        {project.client?.profile?.companyName || project.client?.name || 'Client'}
                       </p>
                     </div>
                     {savedIds.has(project.id) && (
@@ -276,10 +290,11 @@ export default async function ProjectsPage({
                   </p>
 
                   <div className="flex flex-wrap gap-1.5">
-                    {project.skills
+                    {(project.skills || '')
                       .split(',')
+                      .filter(Boolean)
                       .slice(0, 4)
-                      .map((skill) => (
+                      .map((skill: string) => (
                         <span
                           key={skill}
                           className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60"
@@ -293,7 +308,7 @@ export default async function ProjectsPage({
                 <div className="flex items-center justify-between pt-4 border-t border-slate-800/60 mt-2">
                   <div className="flex items-center space-x-1 text-emerald-400">
                     <DollarSign className="w-3.5 h-3.5" />
-                    <span className="font-bold text-sm">${project.budget.toLocaleString()}</span>
+                    <span className="font-bold text-sm">${project.budget ? Number(project.budget).toLocaleString() : '0'}</span>
                   </div>
                   <span
                     className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
@@ -304,10 +319,10 @@ export default async function ProjectsPage({
                   </span>
                   <div className="flex items-center space-x-1 text-slate-500">
                     <Clock className="w-3 h-3" />
-                    <span className="text-xs">{new Date(project.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs">{project.createdAt ? new Date(project.createdAt).toLocaleDateString() : ''}</span>
                   </div>
                   <div className="flex items-center space-x-1 text-slate-500">
-                    <span className="text-xs">{project._count.proposals} proposals</span>
+                    <span className="text-xs">{project._count?.proposals ?? 0} proposals</span>
                     <ChevronRight className="w-3 h-3 group-hover:text-indigo-400 transition-colors" />
                   </div>
                 </div>
