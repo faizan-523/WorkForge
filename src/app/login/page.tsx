@@ -50,16 +50,6 @@ export default function LoginPage() {
         </div>
 
         <div className="glass-panel-glow rounded-2xl p-8 space-y-6">
-          {/* Demo Credentials Helper */}
-          <div className="bg-indigo-950/40 border border-indigo-500/20 rounded-xl p-4 space-y-1.5">
-            <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Demo Accounts</p>
-            <div className="text-xs text-slate-400 space-y-1 font-mono">
-              <p><span className="text-slate-300">Admin:</span> admin@workforge.com / password123</p>
-              <p><span className="text-slate-300">Client:</span> client@workforge.com / password123</p>
-              <p><span className="text-slate-300">Freelancer:</span> freelancer@workforge.com / password123</p>
-            </div>
-          </div>
-
           {error && (
             <div className="flex items-center space-x-2 text-sm text-red-400 bg-red-500/5 border border-red-500/10 rounded-xl p-3">
               <AlertCircle className="w-4 h-4 shrink-0" />
