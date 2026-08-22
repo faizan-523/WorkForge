@@ -21,7 +21,7 @@ export async function registerUser(formData: {
   if (!validated.success) {
     return {
       success: false,
-      error: validated.error.errors[0].message,
+      error: validated.error.issues[0].message,
     };
   }
 
@@ -71,7 +71,7 @@ export async function registerUser(formData: {
 export async function requestPasswordReset(data: ForgotPasswordValues) {
   const parsed = ForgotPasswordSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message };
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
   const { email } = parsed.data;
@@ -122,7 +122,7 @@ export async function requestPasswordReset(data: ForgotPasswordValues) {
 export async function resetPasswordWithToken(data: ResetPasswordValues) {
   const parsed = ResetPasswordSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message };
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
   const { token, password } = parsed.data;

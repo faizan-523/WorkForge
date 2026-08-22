@@ -46,7 +46,12 @@ const BaseProfileSchema = z.object({
     .or(z.literal(''))
     .optional()
     .default(''),
-  socialLinks: SocialLinksSchema.optional().default({}),
+  socialLinks: SocialLinksSchema.optional().default({
+    linkedin: '',
+    github: '',
+    twitter: '',
+    website: '',
+  }),
 });
 
 // ---------------------------------------------------------------------------

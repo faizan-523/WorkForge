@@ -139,7 +139,7 @@ export default async function DashboardPage() {
             ? 'Client Dashboard'
             : 'Freelancer Dashboard'
         }
-        subtitle={`Welcome back, ${session.user.name}`}
+        subtitle={`Welcome back, ${session.user.name || 'User'}`}
       />
 
       <main className="p-8 space-y-8">
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
               {role} ACCOUNT
             </span>
             <h2 className="text-2xl font-extrabold text-white pt-1">
-              Welcome back to WorkForge, {session.user.name.split(' ')[0]}!
+              Welcome back to WorkForge, {session.user.name ? session.user.name.split(' ')[0] : 'User'}!
             </h2>
             <p className="text-sm text-slate-400">
               {role === 'CLIENT'

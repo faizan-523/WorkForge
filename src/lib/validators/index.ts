@@ -9,7 +9,7 @@ export const RegisterSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
   name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
-  role: z.enum(['CLIENT', 'FREELANCER'], { errorMap: () => ({ message: 'Please select a role' }) }),
+  role: z.enum(['CLIENT', 'FREELANCER'], { message: 'Please select a role' }),
 });
 
 export const ProjectSchema = z.object({
@@ -17,7 +17,7 @@ export const ProjectSchema = z.object({
   description: z.string().min(20, { message: 'Description must be at least 20 characters long' }),
   budget: z.coerce.number().positive({ message: 'Budget must be a positive number' }),
   deadline: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid deadline date' }),
-  experienceLevel: z.enum(['ENTRY', 'INTERMEDIATE', 'EXPERT'], { errorMap: () => ({ message: 'Please select an experience level' }) }),
+  experienceLevel: z.enum(['ENTRY', 'INTERMEDIATE', 'EXPERT'], { message: 'Please select an experience level' }),
   category: z.string().min(2, { message: 'Please enter a category' }),
   skills: z.string().min(2, { message: 'Please enter at least one skill' }),
 });

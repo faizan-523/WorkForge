@@ -25,10 +25,10 @@ export const ProjectFormSchema = z.object({
     .string()
     .min(2, { message: 'Please select or specify a category' }),
   experienceLevel: z.enum(EXPERIENCE_LEVELS, {
-    errorMap: () => ({ message: 'Please select a valid experience level' }),
+    message: 'Please select a valid experience level',
   }),
   budget: z.coerce
-    .number({ invalid_type_error: 'Budget must be a number' })
+    .number({ message: 'Budget must be a number' })
     .positive({ message: 'Budget must be a positive amount ($)' }),
   deadline: z
     .string()

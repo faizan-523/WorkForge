@@ -19,9 +19,6 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
-  Linkedin,
-  Github,
-  Twitter,
   Globe,
   DollarSign,
   Briefcase,
@@ -29,6 +26,7 @@ import {
   FileText,
   Image as ImageIcon,
   Building2,
+  Link2,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -92,9 +90,6 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
   const profile = user.profile;
   const socialLinks = parseSocialLinks(profile?.socialLinks);
 
-  // Pick the right schema branch based on role
-  const schema = role === 'FREELANCER' ? FreelancerProfileFormSchema : ClientProfileFormSchema;
-
   const {
     register,
     handleSubmit,
@@ -102,7 +97,7 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(ProfileFormSchema) as any,
     defaultValues:
       role === 'FREELANCER'
         ? {
@@ -188,7 +183,6 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
 
   // ------ Render helpers ------
   function fieldError(name: string) {
-    // Navigate nested errors (e.g. "socialLinks.linkedin")
     const parts = name.split('.');
     let err: any = errors;
     for (const p of parts) {
@@ -230,7 +224,6 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
 
       {/* ---------- Form ---------- */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Hidden role field */}
         <input type="hidden" {...register('role')} />
 
         {/* ====== Shared: Name ====== */}
@@ -268,7 +261,6 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
         {/* ====== Freelancer-specific fields ====== */}
         {role === 'FREELANCER' && (
           <>
-            {/* Professional Title */}
             <div className="space-y-2">
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5">
@@ -284,7 +276,6 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
               {fieldError('title')}
             </div>
 
-            {/* Bio */}
             <div className="space-y-2">
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5">
@@ -301,10 +292,8 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
               {fieldError('bio')}
             </div>
 
-            {/* Skills — tag input */}
             <div className="space-y-2">
               <label className={labelClass}>Skills</label>
-              {/* Tag display */}
               {skillTags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-2">
                   {skillTags.map((skill: string, idx: number) => (
@@ -319,7 +308,6 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
                   ))}
                 </div>
               )}
-              {/* Input row */}
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -342,12 +330,10 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              {/* Hidden field that stores comma-separated skills */}
               <input type="hidden" {...register('skills' as any)} />
               {fieldError('skills')}
             </div>
 
-            {/* Hourly Rate & Resume URL */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className={labelClass}>
@@ -439,7 +425,7 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
             <div className="px-4 pb-4 space-y-3 border-t border-slate-800/60 pt-3">
               {/* LinkedIn */}
               <div className="relative">
-                <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
                   {...register('socialLinks.linkedin' as any)}
                   placeholder="https://linkedin.com/in/username"
@@ -449,7 +435,7 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
               </div>
               {/* GitHub */}
               <div className="relative">
-                <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
                   {...register('socialLinks.github' as any)}
                   placeholder="https://github.com/username"
@@ -459,7 +445,7 @@ export default function ProfileForm({ user, role }: ProfileFormProps) {
               </div>
               {/* Twitter */}
               <div className="relative">
-                <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
                   {...register('socialLinks.twitter' as any)}
                   placeholder="https://x.com/username"

@@ -20,7 +20,7 @@ import {
 export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const role = session?.user?.role;
+  const role = (session?.user as any)?.role;
 
   const clientLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },

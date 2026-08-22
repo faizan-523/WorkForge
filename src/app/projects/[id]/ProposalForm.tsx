@@ -28,7 +28,7 @@ export default function ProposalForm({ projectId, onSuccess }: ProposalFormProps
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ProposalFormValues>({
-    resolver: zodResolver(ProposalFormSchema),
+    resolver: zodResolver(ProposalFormSchema) as any,
     defaultValues: {
       bidAmount: 500,
       durationDays: 7,
