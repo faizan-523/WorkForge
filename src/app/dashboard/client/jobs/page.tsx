@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import Header from '@/components/Header';
 import Link from 'next/link';
+import ProjectDeleteButton from '@/components/projects/ProjectDeleteButton';
 import { Briefcase, PlusCircle, Clock, DollarSign, Users, ChevronRight, Edit } from 'lucide-react';
 
 export default async function ClientJobsPage() {
@@ -11,9 +12,6 @@ export default async function ClientJobsPage() {
   if (!session?.user) redirect('/login');
 
   const userId = (session.user as any).id;
-  const role = (session.user as any).role;
-
-  if (role !== 'CLIENT' && role !== 'ADMIN') redirect('/dashboard');
 
   const projects = await db.project.findMany({
     where: { clientId: userId },
@@ -113,6 +111,7 @@ export default async function ClientJobsPage() {
                     <Edit className="w-3.5 h-3.5" />
                     Edit
                   </Link>
+                  <ProjectDeleteButton projectId={project.id} />
                   <Link
                     href={`/projects/${project.id}`}
                     className="px-4 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20 text-indigo-400 text-xs font-semibold flex items-center gap-1 transition-all"

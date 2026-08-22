@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import ProjectDeleteButton from '@/components/projects/ProjectDeleteButton';
 import {
   Briefcase,
   DollarSign,
@@ -135,22 +136,22 @@ export default async function ProjectsPage({
             WorkForge
           </Link>
           <div className="flex items-center space-x-4">
-            {role === 'CLIENT' && (
-              <Link
-                href="/projects/new"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition-all"
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                Post Project
-              </Link>
-            )}
             {session ? (
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                Dashboard →
-              </Link>
+              <>
+                <Link
+                  href="/projects/new"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition-all"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  Post Project
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  Dashboard →
+                </Link>
+              </>
             ) : (
               <>
                 <Link href="/login" className="text-sm text-slate-400 hover:text-white transition-colors">
@@ -177,7 +178,7 @@ export default async function ProjectsPage({
               Showing {projects.length} of {totalProjects} open project opportunities
             </p>
           </div>
-          {role === 'CLIENT' && (
+          {session ? (
             <Link
               href="/projects/new"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all self-start md:self-auto"
@@ -185,7 +186,7 @@ export default async function ProjectsPage({
               <PlusCircle className="w-4 h-4" />
               Post a Project
             </Link>
-          )}
+          ) : null}
         </div>
 
         {/* Search & Filter Bar */}
@@ -280,9 +281,14 @@ export default async function ProjectsPage({
                         {project.client?.profile?.companyName || project.client?.name || 'Client'}
                       </p>
                     </div>
-                    {savedIds.has(project.id) && (
-                      <Bookmark className="w-4 h-4 text-indigo-400 shrink-0 fill-current" />
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {userId && (project.clientId === userId || role === 'ADMIN') && (
+                        <ProjectDeleteButton projectId={project.id} />
+                      )}
+                      {savedIds.has(project.id) && (
+                        <Bookmark className="w-4 h-4 text-indigo-400 shrink-0 fill-current" />
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">

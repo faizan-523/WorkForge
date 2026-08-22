@@ -11,16 +11,6 @@ export default withAuth(
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
-    // Client-specific pages require CLIENT role
-    if ((path.startsWith('/projects/new') || path.startsWith('/dashboard/client')) && token?.role !== 'CLIENT' && token?.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
-
-    // Freelancer-specific pages require FREELANCER role
-    if (path.startsWith('/dashboard/freelancer') && token?.role !== 'FREELANCER' && token?.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
-
     return NextResponse.next();
   },
   {

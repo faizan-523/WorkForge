@@ -24,6 +24,7 @@ export default function Sidebar() {
 
   const clientLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/projects', label: 'Browse Jobs', icon: Briefcase },
     { href: '/projects/new', label: 'Post a Job', icon: PlusCircle },
     { href: '/dashboard/client/jobs', label: 'My Postings', icon: FolderKanban },
     { href: '/messages', label: 'Messages', icon: MessageSquare },
@@ -33,6 +34,8 @@ export default function Sidebar() {
   const freelancerLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/projects', label: 'Browse Jobs', icon: Briefcase },
+    { href: '/projects/new', label: 'Post a Job', icon: PlusCircle },
+    { href: '/dashboard/client/jobs', label: 'My Postings', icon: FolderKanban },
     { href: '/dashboard/freelancer/saved', label: 'Saved Jobs', icon: Bookmark },
     { href: '/dashboard/freelancer/proposals', label: 'Proposals', icon: FileText },
     { href: '/messages', label: 'Messages', icon: MessageSquare },
@@ -41,6 +44,9 @@ export default function Sidebar() {
 
   const adminLinks = [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/projects', label: 'Browse Jobs', icon: Briefcase },
+    { href: '/projects/new', label: 'Post a Job', icon: PlusCircle },
+    { href: '/dashboard/client/jobs', label: 'My Postings', icon: FolderKanban },
     { href: '/admin/users', label: 'Manage Users', icon: Users },
     { href: '/admin/projects', label: 'Moderate Jobs', icon: ShieldAlert },
     { href: '/dashboard/profile', label: 'Profile', icon: User },

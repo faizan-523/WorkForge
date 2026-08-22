@@ -25,11 +25,6 @@ export async function createProject(
   }
 
   const userId = (session.user as any).id;
-  const role = (session.user as any).role;
-
-  if (role !== 'CLIENT' && role !== 'ADMIN') {
-    return { success: false, error: 'Only client accounts can post projects.' };
-  }
 
   const parsed = ProjectFormSchema.safeParse(data);
   if (!parsed.success) {
