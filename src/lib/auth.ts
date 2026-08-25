@@ -23,8 +23,10 @@ export const authOptions: NextAuthOptions = {
         }
 
         const { email, password } = validated.data;
+        const normalizedEmail = email.trim().toLowerCase();
+
         const user = await db.user.findUnique({
-          where: { email },
+          where: { email: normalizedEmail },
         });
 
         if (!user || !user.passwordHash) {

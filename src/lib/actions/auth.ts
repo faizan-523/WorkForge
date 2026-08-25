@@ -26,10 +26,11 @@ export async function registerUser(formData: {
   }
 
   const { email, name, role, password } = validated.data;
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
     const existingUser = await db.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -43,9 +44,9 @@ export async function registerUser(formData: {
 
     await db.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         passwordHash,
-        name,
+        name: name.trim(),
         role,
         profile: {
           create: {},
