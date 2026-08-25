@@ -1,0 +1,159 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  passwordHash     String
+  name             String
+  role             String            // "ADMIN", "CLIENT", "FREELANCER"
+  status           String            @default("ACTIVE") // "ACTIVE", "SUSPENDED"
+  emailVerified    DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  profile          Profile?
+  sessions         Session[]
+  projects         Project[]         // Client's posted projects
+  proposals        Proposal[]        // Freelancer's proposals
+  sentMessages     Message[]         @relation("SentMessages")
+  receivedMessages Message[]         @relation("ReceivedMessages")
+  notifications    Notification[]
+  sentReviews      Review[]          @relation("SentReviews")
+  receivedReviews  Review[]          @relation("ReceivedReviews")
+  savedProjects    SavedProject[]
+  savedFreelancers SavedFreelancer[] @relation("ClientSavedFreelancers")
+  savedByClients   SavedFreelancer[] @relation("FreelancerSavedBy")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+}
+
+model Profile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Client specific
+  companyName    String?
+  companyLogo    String?
+  
+  // Freelancer specific
+  title          String?
+  bio            String?
+  skills         String?  // Comma-separated list: e.g. "React, Node.js, TypeScript"
+  hourlyRate     Float?
+  experience     String?  // JSON string representing job experiences
+  portfolioLinks String?  // JSON string representing portfolio links
+  resumeUrl      String?
+  imageUrl       String?
+  socialLinks    String?  // JSON string: { linkedin?, github?, twitter?, website? }
+  
+  updatedAt      DateTime @updatedAt
+}
+
+model Project {
+  id              String         @id @default(uuid())
+  clientId        String
+  client          User           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  budget          Float
+  deadline        DateTime
+  experienceLevel String         // "ENTRY", "INTERMEDIATE", "EXPERT"
+  category        String         // e.g. "Development", "Design", "Writing"
+  skills          String         // Comma-separated list: e.g. "React, CSS, HTML"
+  attachments     String?        // JSON string array of uploaded file paths
+  status          String         @default("OPEN") // "DRAFT", "OPEN", "CLOSED", "COMPLETED"
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  proposals       Proposal[]
+  reviews         Review[]
+  savedBy         SavedProject[]
+}
+
+model Proposal {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  freelancerId String
+  freelancer   User     @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  bidAmount    Float
+  coverLetter  String
+  durationDays Int
+  status       String   @default("PENDING") // "PENDING", "ACCEPTED", "REJECTED", "WITHDRAWN"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User     @relation(fields: [reviewerId], references: [id], name: "SentReviews", onDelete: Cascade)
+  revieweeId  String
+  reviewee    User     @relation(fields: [revieweeId], references: [id], name: "ReceivedReviews", onDelete: Cascade)
+  rating      Int      // 1 to 5
+  comment     String
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id], name: "SentMessages", onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation(fields: [receiverId], references: [id], name: "ReceivedMessages", onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  type      String   @default("INFO") // "NEW_APPLICATION", "PROJECT_ACCEPTED", "PROJECT_REJECTED", "INFO"
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SavedProject {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, projectId])
+}
+
+model SavedFreelancer {
+  clientId     String
+  client       User     @relation(fields: [clientId], references: [id], name: "ClientSavedFreelancers", onDelete: Cascade)
+  freelancerId String
+  freelancer   User     @relation(fields: [freelancerId], references: [id], name: "FreelancerSavedBy", onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@id([clientId, freelancerId])
+}

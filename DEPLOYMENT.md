@@ -9,18 +9,32 @@ This guide outlines deployment options for WorkForge: Vercel (Managed Serverless
 1. **Push Codebase to GitHub / GitLab**.
 2. **Import Repository in Vercel**:
    - Framework Preset: `Next.js`
-   - Build Command: `npx prisma generate && next build`
-3. **Configure Environment Variables in Vercel**:
+   - Build Command: `npm run build` (or leave default, `package.json` automatically prepares the DB provider and runs `prisma generate`)
+3. **Configure Environment Variables in Vercel Settings -> Environment Variables**:
    ```env
-   DATABASE_URL="postgresql://user:password@ep-host.pooler.supabase.com:5432/postgres?sslmode=require"
+   # PostgreSQL database connection string (e.g. Supabase, Neon, AWS RDS)
+   DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
+
+   # NextAuth secret key (generate with: openssl rand -base64 32)
    NEXTAUTH_SECRET="your-32-character-production-secret"
-   NEXTAUTH_URL="https://yourdomain.com"
+
+   # Production canonical domain URL (do NOT set to localhost in Vercel!)
+   NEXTAUTH_URL="https://your-workforge-app.vercel.app"
+
+   # Optional: Cloudinary credentials for attachments/media
    CLOUDINARY_CLOUD_NAME="your-cloud-name"
    CLOUDINARY_API_KEY="your-api-key"
    CLOUDINARY_API_SECRET="your-api-secret"
    ```
-4. **Deploy & Database Migration**:
-   - Run `npx prisma db push` or `npx prisma migrate deploy` against your production PostgreSQL instance (e.g. Supabase, Neon, AWS RDS).
+4. **Deploy & Initialize Database Schema**:
+   - Run schema push against your production PostgreSQL instance:
+     ```bash
+     npx prisma db push
+     ```
+   - (Optional) Seed initial data:
+     ```bash
+     npx tsx prisma/seed.ts
+     ```
 
 ---
 
